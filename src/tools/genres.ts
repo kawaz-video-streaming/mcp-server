@@ -14,6 +14,15 @@ export const registerGenreTools = (server: McpServer, client: KawazMcpClient): v
   );
 
   server.registerTool(
+    "get_genre",
+    {
+      description: "Get a specific media genre by ID",
+      inputSchema: { genreId: z.string().describe("MongoDB ObjectId of the genre") },
+    },
+    async ({ genreId }) => text(await client.get(`/mediaGenre/${genreId}`))
+  );
+
+  server.registerTool(
     "create_genre",
     {
       description: "Create a new media genre (admin only). Genre names must be unique.",

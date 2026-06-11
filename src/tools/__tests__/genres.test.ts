@@ -12,6 +12,17 @@ async function setup() {
 }
 
 describe("registerGenreTools", () => {
+  it("get_genre calls GET /mediaGenre/:genreId", async () => {
+    const { client, mcpClient } = await setup();
+    const genre = { _id: "g1", name: "Drama" };
+    vi.mocked(client.get).mockResolvedValue(genre);
+
+    const result = await mcpClient.callTool({ name: "get_genre", arguments: { genreId: "g1" } });
+
+    expect(client.get).toHaveBeenCalledWith("/mediaGenre/g1");
+    expect(result.content[0]).toMatchObject({ type: "text", text: textContent(genre) });
+  });
+
   it("list_genres calls GET /mediaGenre", async () => {
     const { client, mcpClient } = await setup();
     const genres = ["Action", "Drama"];

@@ -91,4 +91,46 @@ describe("registerAdminTools", () => {
 
     expect(client.get).toHaveBeenCalledWith("/user/profiles");
   });
+
+  it("create_profile calls POST /user/profile with profileName and avatarId", async () => {
+    const { client, mcpClient } = await setup();
+    vi.mocked(client.post).mockResolvedValue({ created: true });
+
+    await mcpClient.callTool({
+      name: "create_profile",
+      arguments: { profileName: "Kids", avatarId: "av1" },
+    });
+
+    expect(client.post).toHaveBeenCalledWith("/user/profile", { profileName: "Kids", avatarId: "av1" });
+  });
+
+  it("update_profile_avatar calls PUT /user/profile with profileName and avatarId", async () => {
+    const { client, mcpClient } = await setup();
+    vi.mocked(client.put).mockResolvedValue({ updated: true });
+
+    await mcpClient.callTool({
+      name: "update_profile_avatar",
+      arguments: { profileName: "Kids", avatarId: "av2" },
+    });
+
+    expect(client.put).toHaveBeenCalledWith("/user/profile", { profileName: "Kids", avatarId: "av2" });
+  });
+
+  it("delete_profile calls DELETE /user/profile/:name", async () => {
+    const { client, mcpClient } = await setup();
+    vi.mocked(client.del).mockResolvedValue({ deleted: true });
+
+    await mcpClient.callTool({ name: "delete_profile", arguments: { name: "Kids" } });
+
+    expect(client.del).toHaveBeenCalledWith("/user/profile/Kids");
+  });
+
+  it("delete_account calls DELETE /user/account", async () => {
+    const { client, mcpClient } = await setup();
+    vi.mocked(client.del).mockResolvedValue({ message: "Account deleted successfully" });
+
+    await mcpClient.callTool({ name: "delete_account", arguments: {} });
+
+    expect(client.del).toHaveBeenCalledWith("/user/account");
+  });
 });

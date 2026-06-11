@@ -1,6 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import { KawazMcpClient } from "../services/client/client";
 import { registerAdminTools } from "./admin";
+import { registerAvatarCategoryTools } from "./avatarCategories";
+import { registerAvatarTools } from "./avatars";
 import { registerCollectionTools } from "./collections";
 import { registerGenreTools } from "./genres";
 import { registerHealthTools } from "./health";
@@ -12,4 +14,6 @@ export const registerTools = (server: McpServer, client: KawazMcpClient): void =
     registerCollectionTools(server, client);
     registerGenreTools(server, client);
     registerAdminTools(server, client);
+    registerAvatarTools(server, client);
+    registerAvatarCategoryTools(server, client);
 };
