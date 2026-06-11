@@ -1,58 +1,61 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import z from "zod";
-import { KawazClient } from "../client";
+import { KawazMcpClient } from "../services/client/client";
 
 const text = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
 });
 
-export const registerAdminTools = (server: McpServer, client: KawazClient): void => {
-  server.tool(
+export const registerAdminTools = (server: McpServer, client: KawazMcpClient): void => {
+  server.registerTool(
     "get_me",
-    "Get the authenticated user's username and role",
-    {},
+    { description: "Get the authenticated user's username and role" },
     async () => text(await client.get("/user/me"))
   );
 
-  server.tool(
+  server.registerTool(
     "list_pending_users",
-    "List all users awaiting admin approval (admin only)",
-    {},
+    { description: "List all users awaiting admin approval (admin only)" },
     async () => text(await client.get("/admin/pending"))
   );
 
-  server.tool(
+  server.registerTool(
     "approve_user",
-    "Approve a pending user signup with a role (admin only). Role must be 'user' or 'special'.",
     {
-      username: z.string().min(1).describe("Username of the pending user"),
-      role: z.enum(["user", "special"]).describe("Role to assign: 'user' or 'special'"),
+      description: "Approve a pending user signup with a role (admin only). Role must be 'user' or 'special'.",
+      inputSchema: {
+        username: z.string().min(1).describe("Username of the pending user"),
+        role: z.enum(["user", "special"]).describe("Role to assign: 'user' or 'special'"),
+      },
     },
     async ({ username, role }) =>
       text(await client.post(`/admin/pending/${username}/approve/${role}`))
   );
 
-  server.tool(
+  server.registerTool(
     "deny_user",
-    "Deny and remove a pending user signup (admin only). Sends a denial email.",
-    { username: z.string().min(1).describe("Username of the pending user to deny") },
+    {
+      description: "Deny and remove a pending user signup (admin only). Sends a denial email.",
+      inputSchema: { username: z.string().min(1).describe("Username of the pending user to deny") },
+    },
     async ({ username }) => text(await client.post(`/admin/pending/${username}/deny`))
   );
 
-  server.tool(
+  server.registerTool(
     "send_newsletter",
-    "Send an HTML newsletter email to all approved users (admin only)",
     {
-      html: z.string().min(1).describe("HTML content of the newsletter"),
-      subject: z.string().optional().describe("Email subject line (optional)"),
+      description: "Send an HTML newsletter email to all approved users (admin only)",
+      inputSchema: {
+        html: z.string().min(1).describe("HTML content of the newsletter"),
+        subject: z.string().optional().describe("Email subject line (optional)"),
+      },
     },
     async ({ html, subject }) => text(await client.post("/admin/newsletter", { html, subject }))
   );
 
-  server.tool(
+  server.registerTool(
     "list_user_profiles",
-    "List profiles belonging to the authenticated user",
-    {},
+    { description: "List profiles belonging to the authenticated user" },
     async () => text(await client.get("/user/profiles"))
   );
 };

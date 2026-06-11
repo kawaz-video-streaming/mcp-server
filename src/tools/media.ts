@@ -1,53 +1,59 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import z from "zod";
-import { KawazClient } from "../client";
+import { KawazMcpClient } from "../services/client/client";
 
 const text = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
 });
 
-export const registerMediaTools = (server: McpServer, client: KawazClient): void => {
-  server.tool(
+export const registerMediaTools = (server: McpServer, client: KawazMcpClient): void => {
+  server.registerTool(
     "list_media",
-    "List all completed media items",
-    {},
+    { description: "List all completed media items" },
     async () => text(await client.get("/media"))
   );
 
-  server.tool(
+  server.registerTool(
     "list_uploading_media",
-    "List all media items currently pending, processing, or failed",
-    {},
+    { description: "List all media items currently pending, processing, or failed" },
     async () => text(await client.get("/media/uploading"))
   );
 
-  server.tool(
+  server.registerTool(
     "get_media",
-    "Get metadata for a specific media item by ID",
-    { id: z.string().describe("MongoDB ObjectId of the media item") },
+    {
+      description: "Get metadata for a specific media item by ID",
+      inputSchema: { id: z.string().describe("MongoDB ObjectId of the media item") },
+    },
     async ({ id }) => text(await client.get(`/media/${id}`))
   );
 
-  server.tool(
+  server.registerTool(
     "get_media_progress",
-    "Get the current conversion status and percentage for a media item",
-    { id: z.string().describe("MongoDB ObjectId of the media item") },
+    {
+      description: "Get the current conversion status and percentage for a media item",
+      inputSchema: { id: z.string().describe("MongoDB ObjectId of the media item") },
+    },
     async ({ id }) => text(await client.get(`/media/${id}/progress`))
   );
 
-  server.tool(
+  server.registerTool(
     "delete_media",
-    "Delete a media item from the database and VOD storage (admin only)",
-    { id: z.string().describe("MongoDB ObjectId of the media item to delete") },
+    {
+      description: "Delete a media item from the database and VOD storage (admin only)",
+      inputSchema: { id: z.string().describe("MongoDB ObjectId of the media item to delete") },
+    },
     async ({ id }) => text(await client.del(`/media/${id}`))
   );
 
-  server.tool(
+  server.registerTool(
     "search_tmdb_movie",
-    "Look up movie metadata from TMDB by title and optional year (admin only)",
     {
-      title: z.string().describe("Movie title to search"),
-      year: z.string().optional().describe("Release year (optional, improves accuracy)"),
+      description: "Look up movie metadata from TMDB by title and optional year (admin only)",
+      inputSchema: {
+        title: z.string().describe("Movie title to search"),
+        year: z.string().optional().describe("Release year (optional, improves accuracy)"),
+      },
     },
     async ({ title, year }) => {
       const query = new URLSearchParams({ title, ...(year ? { year } : {}) });
@@ -55,12 +61,14 @@ export const registerMediaTools = (server: McpServer, client: KawazClient): void
     }
   );
 
-  server.tool(
+  server.registerTool(
     "search_tmdb_show",
-    "Look up TV show metadata from TMDB by title and optional year (admin only)",
     {
-      title: z.string().describe("Show title to search"),
-      year: z.string().optional().describe("First air year (optional)"),
+      description: "Look up TV show metadata from TMDB by title and optional year (admin only)",
+      inputSchema: {
+        title: z.string().describe("Show title to search"),
+        year: z.string().optional().describe("First air year (optional)"),
+      },
     },
     async ({ title, year }) => {
       const query = new URLSearchParams({ title, ...(year ? { year } : {}) });
@@ -68,14 +76,16 @@ export const registerMediaTools = (server: McpServer, client: KawazClient): void
     }
   );
 
-  server.tool(
+  server.registerTool(
     "search_tmdb_episode",
-    "Look up TV episode metadata from TMDB (admin only)",
     {
-      showTitle: z.string().describe("Show title"),
-      showYear: z.string().describe("Show first air year"),
-      seasonNumber: z.string().describe("Season number"),
-      episodeNumber: z.string().describe("Episode number"),
+      description: "Look up TV episode metadata from TMDB (admin only)",
+      inputSchema: {
+        showTitle: z.string().describe("Show title"),
+        showYear: z.string().describe("Show first air year"),
+        seasonNumber: z.string().describe("Season number"),
+        episodeNumber: z.string().describe("Episode number"),
+      },
     },
     async ({ showTitle, showYear, seasonNumber, episodeNumber }) => {
       const query = new URLSearchParams({ showTitle, showYear, seasonNumber, episodeNumber });
@@ -83,13 +93,15 @@ export const registerMediaTools = (server: McpServer, client: KawazClient): void
     }
   );
 
-  server.tool(
+  server.registerTool(
     "search_tmdb_season",
-    "Look up TV season metadata from TMDB (admin only)",
     {
-      showTitle: z.string().describe("Show title"),
-      showYear: z.string().describe("Show first air year"),
-      seasonNumber: z.string().describe("Season number"),
+      description: "Look up TV season metadata from TMDB (admin only)",
+      inputSchema: {
+        showTitle: z.string().describe("Show title"),
+        showYear: z.string().describe("Show first air year"),
+        seasonNumber: z.string().describe("Season number"),
+      },
     },
     async ({ showTitle, showYear, seasonNumber }) => {
       const query = new URLSearchParams({ showTitle, showYear, seasonNumber });
