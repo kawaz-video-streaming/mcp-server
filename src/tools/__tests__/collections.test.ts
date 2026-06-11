@@ -12,38 +12,38 @@ async function setup() {
 }
 
 describe("registerCollectionTools", () => {
-  it("list_collections calls GET /media-collection", async () => {
+  it("list_collections calls GET /mediaCollection", async () => {
     const { client, mcpClient } = await setup();
     const collections = [{ id: "col1", title: "Action" }];
     vi.mocked(client.get).mockResolvedValue(collections);
 
     const result = await mcpClient.callTool({ name: "list_collections", arguments: {} });
 
-    expect(client.get).toHaveBeenCalledWith("/media-collection");
+    expect(client.get).toHaveBeenCalledWith("/mediaCollection");
     expect(result.content[0]).toMatchObject({ type: "text", text: textContent(collections) });
   });
 
-  it("get_collection calls GET /media-collection/:id", async () => {
+  it("get_collection calls GET /mediaCollection/:id", async () => {
     const { client, mcpClient } = await setup();
     const col = { id: "col1", title: "Action" };
     vi.mocked(client.get).mockResolvedValue(col);
 
     const result = await mcpClient.callTool({ name: "get_collection", arguments: { id: "col1" } });
 
-    expect(client.get).toHaveBeenCalledWith("/media-collection/col1");
+    expect(client.get).toHaveBeenCalledWith("/mediaCollection/col1");
     expect(result.content[0]).toMatchObject({ type: "text", text: textContent(col) });
   });
 
-  it("delete_collection calls DELETE /media-collection/:id", async () => {
+  it("delete_collection calls DELETE /mediaCollection/:id", async () => {
     const { client, mcpClient } = await setup();
     vi.mocked(client.del).mockResolvedValue({ deleted: true });
 
     await mcpClient.callTool({ name: "delete_collection", arguments: { id: "col1" } });
 
-    expect(client.del).toHaveBeenCalledWith("/media-collection/col1");
+    expect(client.del).toHaveBeenCalledWith("/mediaCollection/col1");
   });
 
-  it("update_collection calls PUT /media-collection/:id with body fields (excluding id)", async () => {
+  it("update_collection calls PUT /mediaCollection/:id with body fields (excluding id)", async () => {
     const { client, mcpClient } = await setup();
     vi.mocked(client.put).mockResolvedValue({ updated: true });
 
@@ -52,7 +52,7 @@ describe("registerCollectionTools", () => {
       arguments: { id: "col1", title: "New Title", genres: ["Action", "Drama"] },
     });
 
-    expect(client.put).toHaveBeenCalledWith("/media-collection/col1", {
+    expect(client.put).toHaveBeenCalledWith("/mediaCollection/col1", {
       title: "New Title",
       genres: ["Action", "Drama"],
     });
@@ -67,7 +67,7 @@ describe("registerCollectionTools", () => {
       arguments: { id: "col1", description: null, collectionId: null },
     });
 
-    expect(client.put).toHaveBeenCalledWith("/media-collection/col1", {
+    expect(client.put).toHaveBeenCalledWith("/mediaCollection/col1", {
       description: null,
       collectionId: null,
     });

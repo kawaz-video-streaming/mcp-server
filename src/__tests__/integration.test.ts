@@ -110,7 +110,7 @@ describe("integration: all tools registered and callable", () => {
       arguments: { id: "col1", title: "Updated" },
     });
 
-    expect(client.put).toHaveBeenCalledWith("/media-collection/col1", { title: "Updated" });
+    expect(client.put).toHaveBeenCalledWith("/mediaCollection/col1", { title: "Updated" });
   });
 
   it("genres: full create → list → delete flow", async () => {

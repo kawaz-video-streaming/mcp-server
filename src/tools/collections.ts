@@ -10,7 +10,7 @@ export const registerCollectionTools = (server: McpServer, client: KawazMcpClien
   server.registerTool(
     "list_collections",
     { description: "List all media collections" },
-    async () => text(await client.get("/media-collection"))
+    async () => text(await client.get("/mediaCollection"))
   );
 
   server.registerTool(
@@ -19,7 +19,7 @@ export const registerCollectionTools = (server: McpServer, client: KawazMcpClien
       description: "Get a specific media collection by ID",
       inputSchema: { id: z.string().describe("MongoDB ObjectId of the collection") },
     },
-    async ({ id }) => text(await client.get(`/media-collection/${id}`))
+    async ({ id }) => text(await client.get(`/mediaCollection/${id}`))
   );
 
   server.registerTool(
@@ -28,7 +28,7 @@ export const registerCollectionTools = (server: McpServer, client: KawazMcpClien
       description: "Delete a media collection (must be empty — no child media or subcollections) (admin only)",
       inputSchema: { id: z.string().describe("MongoDB ObjectId of the collection to delete") },
     },
-    async ({ id }) => text(await client.del(`/media-collection/${id}`))
+    async ({ id }) => text(await client.del(`/mediaCollection/${id}`))
   );
 
   server.registerTool(
@@ -44,6 +44,6 @@ export const registerCollectionTools = (server: McpServer, client: KawazMcpClien
         collectionId: z.string().nullable().optional().describe("Parent collection ID (null to clear)"),
       },
     },
-    async ({ id, ...body }) => text(await client.put(`/media-collection/${id}`, body))
+    async ({ id, ...body }) => text(await client.put(`/mediaCollection/${id}`, body))
   );
 };
