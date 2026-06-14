@@ -42,7 +42,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that e
 |------|-------------|
 | `get_me` | Get the authenticated user's username |
 | `list_pending_users` | List users awaiting admin approval *(admin)* |
-| `approve_user` | Approve a pending user *(admin)* |
+| `approve_user` | Approve a pending user with a role *(admin)* |
 | `deny_user` | Deny and remove a pending user *(admin)* |
 | `send_newsletter` | Send an HTML newsletter to all approved users *(admin)* |
 | `list_user_profiles` | List profiles for the authenticated user |

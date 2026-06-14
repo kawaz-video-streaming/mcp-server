@@ -26,13 +26,14 @@ export const registerAdminTools = (server: McpServer, client: KawazMcpClient): v
   server.registerTool(
     "approve_user",
     {
-      description: "Approve a pending user signup (admin only).",
+      description: "Approve a pending user signup with a role (admin only).",
       inputSchema: {
         username: z.string().min(1).describe("Username of the pending user"),
+        role: z.string().min(1).describe("Role to assign"),
       },
     },
-    async ({ username }) =>
-      text(await client.post(`/admin/pending/${username}/approve/user`))
+    async ({ username, role }) =>
+      text(await client.post(`/admin/pending/${username}/approve/${role}`))
   );
 
   server.registerTool(
