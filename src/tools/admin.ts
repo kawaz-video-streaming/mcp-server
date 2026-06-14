@@ -9,8 +9,12 @@ const text = (data: unknown) => ({
 export const registerAdminTools = (server: McpServer, client: KawazMcpClient): void => {
   server.registerTool(
     "get_me",
-    { description: "Get the authenticated user's username and role" },
-    async () => text(await client.get("/user/me"))
+    { description: "Get the authenticated user's username" },
+    async () => {
+      const me = await client.get("/user/me") as { username: string; role: string };
+      const result = me.role === "admin" ? me : { username: me.username };
+      return text(result);
+    }
   );
 
   server.registerTool(
@@ -22,14 +26,13 @@ export const registerAdminTools = (server: McpServer, client: KawazMcpClient): v
   server.registerTool(
     "approve_user",
     {
-      description: "Approve a pending user signup with a role (admin only). Role must be 'user' or 'special'.",
+      description: "Approve a pending user signup (admin only).",
       inputSchema: {
         username: z.string().min(1).describe("Username of the pending user"),
-        role: z.enum(["user", "special"]).describe("Role to assign: 'user' or 'special'"),
       },
     },
-    async ({ username, role }) =>
-      text(await client.post(`/admin/pending/${username}/approve/${role}`))
+    async ({ username }) =>
+      text(await client.post(`/admin/pending/${username}/approve/user`))
   );
 
   server.registerTool(
