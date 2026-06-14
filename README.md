@@ -1,5 +1,7 @@
 # kawaz-mcp-server
 
+**Version:** 1.0.0
+
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that exposes the kawaz video streaming backend as tools for AI assistants (e.g. Claude).
 
 ## Tools
