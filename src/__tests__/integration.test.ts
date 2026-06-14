@@ -149,16 +149,16 @@ describe("integration: all tools registered and callable", () => {
     expect(client.del).toHaveBeenCalledWith("/mediaGenre", { name: "Thriller" });
   });
 
-  it("admin: approve_user encodes username and role in path", async () => {
+  it("admin: approve_user encodes username in path", async () => {
     const client = makeMockClient();
     vi.mocked(client.post).mockResolvedValue({ approved: true });
     const mcpClient = await createTestClient(client);
 
     await mcpClient.callTool({
       name: "approve_user",
-      arguments: { username: "alice", role: "special" },
+      arguments: { username: "alice" },
     });
 
-    expect(client.post).toHaveBeenCalledWith("/admin/pending/alice/approve/special");
+    expect(client.post).toHaveBeenCalledWith("/admin/pending/alice/approve/user");
   });
 });
