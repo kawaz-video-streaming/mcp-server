@@ -11,6 +11,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 COPY package*.json ./
+COPY scripts/ ./scripts/
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
