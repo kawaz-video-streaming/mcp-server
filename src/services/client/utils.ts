@@ -1,12 +1,14 @@
 import { isNil, isNotNil } from "ramda";
 import { KawazMcpConfig } from "../../config";
+import { AuthCredentials } from "../../api/types";
 
-export const login = async (config: KawazMcpConfig): Promise<string> => {
-    const { KAWAZ_BACKEND_URL, KAWAZ_USERNAME, KAWAZ_PASSWORD } = config;
-    const res = await fetch(`${KAWAZ_BACKEND_URL}/auth/login`, {
+export const login = async (config: KawazMcpConfig, authCredentials: AuthCredentials): Promise<string> => {
+    const { kawazBackendUrl } = config;
+    const { username, password } = authCredentials;
+    const res = await fetch(`${kawazBackendUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: KAWAZ_USERNAME, password: KAWAZ_PASSWORD }),
+        body: JSON.stringify({ username, password }),
     });
     if (!res.ok) {
         const text = await res.text();
@@ -21,10 +23,10 @@ export const login = async (config: KawazMcpConfig): Promise<string> => {
     return cookie;
 };
 
-export const createRequestHandler = (config: KawazMcpConfig, cookie?: string) =>
+export const createRequestHandler = (config: KawazMcpConfig, authCredentials: AuthCredentials, cookie?: string) =>
     async (method: string, url: string, body?: unknown, retried = false): Promise<unknown> => {
         if (isNil(cookie)) {
-            cookie = await login(config);
+            cookie = await login(config, authCredentials);
         };
         const res = await fetch(url, {
             method,
@@ -35,7 +37,7 @@ export const createRequestHandler = (config: KawazMcpConfig, cookie?: string) =>
             ...(isNotNil(body) && { body: JSON.stringify(body) }),
         });
         if (res.status === 401 && !retried) {
-            return createRequestHandler(config, undefined)(method, url, body, true);
+            return createRequestHandler(config, authCredentials)(method, url, body, true);
         }
         const text = await res.text();
         if (!res.ok) {

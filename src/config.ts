@@ -1,13 +1,16 @@
+import { createServerConfig, ServerConfig } from "@ido_kawaz/server-framework";
 import z from "zod";
 
 const kawazMcpConfigSchema = z.object({
   KAWAZ_BACKEND_URL: z.url().default("http://localhost:8080"),
   KAWAZ_MEDIA_PROCESSOR_URL: z.url().default("http://localhost:8081"),
-  KAWAZ_USERNAME: z.string().min(1, "KAWAZ_USERNAME is required"),
-  KAWAZ_PASSWORD: z.string().min(1, "KAWAZ_PASSWORD is required"),
 });
 
-export type KawazMcpConfig = z.infer<typeof kawazMcpConfigSchema>;
+export interface KawazMcpConfig {
+  kawazBackendUrl: string;
+  kawazMediaProcessorUrl: string;
+  server: ServerConfig;
+}
 
 export const createKawazMcpConfig = () => {
   const result = kawazMcpConfigSchema.safeParse(process.env);
@@ -15,5 +18,9 @@ export const createKawazMcpConfig = () => {
     const issues = result.error.issues.map((i) => `  ${i.path.join(".")}: ${i.message}`).join("\n");
     throw new Error(`Invalid config:\n${issues}`);
   }
-  return result.data;
+  return {
+    kawazBackendUrl: result.data.KAWAZ_BACKEND_URL,
+    kawazMediaProcessorUrl: result.data.KAWAZ_MEDIA_PROCESSOR_URL,
+    server: createServerConfig(),
+  };
 };
