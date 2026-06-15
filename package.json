@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "npm run clean && tsc",
     "build:watch": "tsc --watch",
