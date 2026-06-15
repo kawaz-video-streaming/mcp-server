@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
+    "postinstall": "node scripts/patch-sdk.js",
     "build": "npm run clean && tsc",
     "build:watch": "tsc --watch",
     "start": "node --env-file .env dist/index.js",
