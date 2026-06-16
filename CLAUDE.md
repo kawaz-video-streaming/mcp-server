@@ -38,10 +38,27 @@ This is an HTTP-based MCP server using `StreamableHTTPServerTransport`. It wraps
 
 **`src/services/client/client.ts`** — `createKawazMcpClient(config, authCredentials)`. Authenticates via `POST /auth/login`, stores session cookie, re-logins transparently on 401. All tools route through `client.get/post/put/del`.
 
-**`src/tools/`** — one file per domain. Each exports `register*Tools(server, client)`. To add a tool: pick the right file, call `server.tool(name, description, zodSchema, handler)`, register in `src/tools/index.ts` if new file.
+**`src/tools/`** — one file per domain, each exporting `register*Tools(server, client)`, wired up in `src/tools/index.ts`:
+- `health.ts` — `check_health`
+- `media.ts` — media CRUD, uploads, subtitles, TMDB search
+- `collections.ts` — collection CRUD
+- `genres.ts` — genre CRUD
+- `admin.ts` — user approval/denial, newsletter, profiles, account deletion
+- `avatars.ts` — avatar CRUD
+- `avatarCategories.ts` — avatar category CRUD
+
+Tools use `server.registerTool(name, { description, inputSchema }, handler)` with Zod schemas; handlers call `client.get/post/put/del` and wrap the JSON response as `{ content: [{ type: "text", text }] }`. To add a tool: pick the right file (or create one and register it in `src/tools/index.ts`), follow the existing pattern. Each domain file has a matching test in `src/tools/__tests__/`.
 
 ## Session model
 
 - First `POST /mcp`: client sends `Authorization: Basic base64(user:pass)` → server logs in, creates `KawazMcpClient`, returns `Mcp-Session-Id` header
 - Subsequent requests: client sends `Mcp-Session-Id` → routed to existing transport, no re-auth
 - `DELETE /mcp` with `Mcp-Session-Id`: closes and evicts session
+
+## CI/CD
+
+`.github/workflows/kawaz-mcp-server.yml` runs on push to `main` with two jobs:
+- `test` — `npm ci` + `npm test`
+- `build-and-deploy` — `needs: test`; builds/pushes the Docker image to GHCR and rolls out to GKE (`kawaz` cluster, `europe-west3-a`)
+
+A failing test suite blocks the Docker build and deploy.
